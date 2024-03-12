@@ -1,0 +1,105 @@
+{
+    "path": "settings.json",
+    "valid_outcomes": [
+        "success",
+        "failure",
+        "error"
+    ],
+    "skills": [
+        {
+            "ident": "a",
+            "title": "Skill Objective - A",
+            "checks": [
+                {
+                    "ident": "a",
+                    "title": "Skill Objective - Step 1.A",
+                    "value": "success"
+                },
+                {
+                    "ident": "b",
+                    "title": "Skill Objective - Step 1.B",
+                    "value": "success"
+                },
+                {
+                    "ident": "c",
+                    "title": "Skill Objective - Step 1.C",
+                    "value": "success"
+                }
+            ]
+        },
+        {
+            "ident": "b",
+            "title": "Skill Objective - B",
+            "checks": [
+                {
+                    "ident": "a",
+                    "title": "Skill Objective - Step 2.A",
+                    "value": "success"
+                },
+                {
+                    "ident": "b",
+                    "title": "Skill Objective - Step 2.B",
+                    "value": "success"
+                },
+                {
+                    "ident": "c",
+                    "title": "Skill Objective - Step 2.C",
+                    "value": "success"
+                }
+            ]
+        },
+        {   
+            "ident": "c",
+            "title": "Skill Objective - C",
+            "checks": [
+                {
+                    "ident": "a",
+                    "title": "Skill Objective - Step 3.A",
+                    "value": "success"
+                },
+                {
+                    "ident": "b",
+                    "title": "Skill Objective - Step 3.B",
+                    "value": "success"
+                }
+            ]
+        },
+        {
+            "ident": "d",
+            "title": "Skill Objective - D",
+            "checks": [
+                {
+                    "ident": "a",
+                    "title": "Skill Objective - Step 4.A",
+                    "value": "success"
+                }
+            ]
+        },
+        {
+            "ident": "e",
+            "title": "Skill Objective - E",
+            "checks": [
+                {
+                    "ident": "a",
+                    "title": "Skill Objective - Step 5.A",
+                    "value": "success"
+                },
+                {
+                    "ident": "b",
+                    "title": "Skill Objective - Step 5.B",
+                    "value": "success"
+                },
+                {
+                    "ident": "c",
+                    "title": "Skill Objective - Step 5.C",
+                    "value": "success"
+                },
+                {
+                    "ident": "d",
+                    "title": "Skill Objective - Step 5.D",
+                    "value": "success"
+                }
+            ]
+        }
+    ]
+}

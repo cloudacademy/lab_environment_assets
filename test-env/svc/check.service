@@ -1,0 +1,13 @@
+[Unit]
+Description=Flask Check App
+
+[Service]
+Type=simple
+ExecStart=/home/ec2-user/svc/check_wrap.sh
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/svc
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
