@@ -10,9 +10,9 @@ RUN cp /build/greetings/target/x86_64-unknown-linux-musl/debug/greetings hello
 # 
 # 
 # Requirements
-# - Ensure the latest Alpine Linux image is used as the base image.
-# - Ensure the /build/hello binary from the build stage resides at /runtime/hello in the final stage.
-# - Ensure the /runtime directory is added to the PATH environment variable. 
-# - Ensure the /runtime/hello binary runs when the container starts.
-#
-#
+# - Use the latest Alpine Linux image.
+# - Add the hello binary from the build stage to a /runtime directory.
+# - Add the /runtime directory to the PATH environment variable.
+# - Set /runtime/hello as the default command.
+
+###########################################

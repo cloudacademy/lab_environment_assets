@@ -1,25 +1,32 @@
-# Note: the module name is psycopg, not psycopg3
+import os
 import psycopg
 
-print('Buckle up, we are about to connect to a database!')
+DB_HOST = os.environ['DB_HOST']
+DB_USER = os.environ['DB_USER']
+DB_NAME = os.environ['DB_NAME']
+DB_PASS = os.environ['DB_PASS']
+DB_DATA = os.environ.get('DB_DATA', '100')
+
 
 # Connect to an existing database
-with psycopg.connect("dbname=appdb user=app-user password=secret host=postgres") as conn:
+with psycopg.connect(f"host={DB_HOST} user={DB_USER} dbname={DB_NAME} password={DB_PASS}" ) as conn:
 
     # Open a cursor to perform database operations
     with conn.cursor() as cur:
 
         # Execute a command: this creates a new table
         cur.execute("""
-            CREATE TABLE rainbow (
+            CREATE TABLE IF NOT EXISTS rainbow (
                 rid SERIAL PRIMARY KEY,
                 num INTEGER
             )
             """)
 
+
+        cur.execute("TRUNCATE TABLE rainbow")
         cur.execute(
             "INSERT INTO rainbow (num) VALUES (%s)",
-            (100,)
+            (DB_DATA,)
         )
 
         # Make the changes to the database persistent
@@ -27,8 +34,5 @@ with psycopg.connect("dbname=appdb user=app-user password=secret host=postgres")
 
         # Query the database and obtain data as Python objects.
         cur.execute("SELECT * FROM rainbow")
-        print(cur.fetchone())
+        print(f"Found: {cur.fetchone()[1]}")
 
-print('We are done here!')
-
-        
