@@ -1,24 +1,85 @@
-# One or more services can be defined under the top-level key: services.
+volumes:
+    pg_data_volume:
+
+networks:
+    web_to_db:
+    proxy_to_web:
+
+# Use secrets to configure database connection details.
+secrets:
+    db_user:
+        file: /cloudacademy/lab/secrets/db_user.txt
+    db_pass:
+        file: /cloudacademy/lab/secrets/db_pass.txt
+    db_name:
+        file: /cloudacademy/lab/secrets/db_name.txt
+
+
+# Reusable DB credentials for the postgres and web_app 
+x-db_creds: &db_creds
+    - source: db_user
+      target: /secrets/db_user
+      mode: 0440
+    - source: db_pass
+      target: /secrets/db_pass
+      mode: 0440
+    - source: db_name
+      target: /secrets/db_name
+      mode: 0440
+
+
 services:
-    # The name postgres is the name of the database service.
-    # This arbitrary name becomes the hostname of the container.
     postgres:
-        # The image to use to create the container.
         image: postgres:15-alpine
-        # The command is passed as arguments to the ENTRYPOINT script. 
+        # arguments for the ENTRYPOINT script. 
         command: "-c shared_buffers=256MB -c max_connections=200"
-        # Instructs compose to restart the container if it shuts 
-        # down unless the container is intentionally stopped.
         restart: unless-stopped
-        # The volumes mounted by this service.
+        secrets: *db_creds
         volumes:
             - pg_data_volume:/var/lib/postgresql/data
-        # The networks attached to the container.
         networks:
             - web_to_db
-        # Environment variables used to configure the database. 
         environment:
-            - POSTGRES_USER=web_user
-            - POSTGRES_PASSWORD=az93kfLS
-            - POSTGRES_DB=web_app
+            - POSTGRES_USER_FILE=/secrets/db_user
+            - POSTGRES_PASSWORD_FILE=/secrets/db_pass
+            - POSTGRES_DB_FILE=/secrets/db_name
 
+    web_app: 
+        build:
+            context: overshare/web_app/
+        restart: unless-stopped
+        secrets: *db_creds
+        networks:
+            - web_to_db
+            - proxy_to_web
+        healthcheck:
+            test: wget -T 5 "http://web_app:9000/" -O /dev/null -q
+            interval: 3s
+            retries: 5
+            start_period: 15s
+        environment:
+            - POSTGRES_USER_FILE=/secrets/db_user
+            - POSTGRES_PASSWORD_FILE=/secrets/db_pass
+            - POSTGRES_DB_FILE=/secrets/db_name
+
+        depends_on:
+            postgres:
+                condition: service_healthy
+
+
+
+    proxy:
+        image: nginx:1.23-alpine
+        restart: unless-stopped
+        ports:
+            - "5000:80"
+        volumes:
+            - /cloudacademy/lab/overshare/web_proxy/default.conf.template:/etc/nginx/templates/default.conf.template
+        networks:
+            - proxy_to_web
+        environment:
+            - WEB_APP_HOST=web_app
+            - WEB_APP_PORT=9000
+        depends_on: 
+            web_app:
+                condition: service_healthy
