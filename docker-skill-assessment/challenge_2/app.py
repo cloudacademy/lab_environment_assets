@@ -1,4 +1,6 @@
 import os
+from contextlib import contextmanager
+
 import psycopg
 
 DB_HOST = os.environ['DB_HOST']
@@ -10,30 +12,39 @@ DB_INIT = os.environ.get('DB_INIT', 0)
 CONNECTION_STRING = f"host={DB_HOST} user={DB_USER} dbname={DB_NAME} password={DB_PASS}"
 
 
-# Helper functions
-
-# context manager to handle database connections
-def conn_cursor():
+@contextmanager
+def con_cur():
+    con = psycopg.connect(CONNECTION_STRING)
+    cur = con.cursor()
     try:
-        with psycopg.connect(CONNECTION_STRING) as conn:
-            with conn.cursor() as cur:
-                yield conn, cur 
+        yield con, cur
     finally:
-        pass
+        cur.close()
+        con.close()
 
     
-def table_filled() -> bool:
-    with conn_cursor() as (_, cur):
-        # Ensure the rainbow table is filled.
-        cur.execute("""SELECT COUNT(*) FROM rainbow WHERE num BETWEEN 1 AND 39""")
-        return cur.fetchone()[0] == 20
+def table_exists() -> bool:
+    with con_cur() as (_, cur):
+        cur.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_name = 'rainbow'
+            )
+            """
+        )
+        return cur.fetchone()[0]
 
 
 def ensure_init() -> None:
     if not bool(DB_INIT):
+        print("db-init: skipping")
         return
     
-    with conn_cursor() as (conn, cur):
+    if table_exists():
+        print("db-init: table already exists")
+        return
+    
+    with con_cur() as (conn, cur):
         cur.execute("""
             CREATE TABLE IF NOT EXISTS rainbow (
                 rid SERIAL PRIMARY KEY,
@@ -42,29 +53,28 @@ def ensure_init() -> None:
             """
         )
 
-        if not table_filled():
-            cur.executemany("""INSERT INTO rainbow (num) VALUES (%s)""", [
-                [1],
-                [3],
-                [5],
-                [7],
-                [9],
-                [11],
-                [13],
-                [15],
-                [17],
-                [19],
-                [21],
-                [23],
-                [25],
-                [27],
-                [29],
-                [31],
-                [33],
-                [35],
-                [37],
-                [39],
-            ])
+        cur.executemany("""INSERT INTO rainbow (num) VALUES (%s)""", [
+            [1],
+            [3],
+            [5],
+            [7],
+            [9],
+            [11],
+            [13],
+            [15],
+            [17],
+            [19],
+            [21],
+            [23],
+            [25],
+            [27],
+            [29],
+            [31],
+            [33],
+            [35],
+            [37],
+            [39],
+        ])
 
         # Make the changes to the database persistent
         conn.commit()
@@ -78,11 +88,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def get_data():
-    # Create the database, if it doesn't exist
-    with psycopg.connect(CONNECTION_STRING) as conn:
-        # Open a cursor to perform database operations
-        with conn.cursor() as cur:
-            # Execute a command: this creates a new table
-            cur.execute("""SELECT num FROM rainbow""")
-            # Join the results into a CSV string
-            return ','.join([str(row[0]) for row in cur.fetchall()])
+    with con_cur() as (_, cur):
+        cur.execute("""SELECT num FROM rainbow""")
+        return ','.join([str(row[0]) for row in cur.fetchall()])
