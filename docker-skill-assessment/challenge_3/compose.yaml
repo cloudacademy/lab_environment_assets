@@ -1,8 +1,18 @@
+# Developer notes:
+#
+# Manager asked me to create a development environment for the Overshare project.
+#  
+
+
 volumes:
+    # Persistent data for the postgres service.
     pg_data_volume:
 
 networks:
+    # Connects the web_app and postgres services.
     web_to_db:
+    # Connects the proxy and web_app services. 
+    # The proxy has no direct connection to the database.
     proxy_to_web:
 
 # Use secrets to configure database connection details.
@@ -15,7 +25,7 @@ secrets:
         file: overshare/secrets/db_name.txt
 
 
-# Reusable DB credentials for the postgres and web_app 
+# Reusable DB credentials for the postgres, web_app, and db_init services.
 x-db_creds: &db_creds
     - source: db_user
       target: /secrets/db_user
@@ -27,82 +37,101 @@ x-db_creds: &db_creds
       target: /secrets/db_name
       mode: 0440
 
+# Reusable ENV variables for the web_app and db_init services
+x-db_env: &db_env
+    - DATABASE_USER=/secrets/db_user
+    - DATABASE_PASS=/secrets/db_pass
+    - DATABASE_NAME=/secrets/db_name
+    - DATABASE_HOST=postgres
+
 
 services:
+
+    # TODO: Complete the postgres service definition.
+    #
+    # Tasks:
+    # 
+    # 1. Mount the volume:
+    #    |> pg_data_volume
+    #    |> @ 
+    #    |> /var/lib/postgresql/data.
+    #
+    # 2. Include the db_creds secrets.
+    #
+    # 3. Attach the web_to_db network.
+    #
+    # 4. Add a healthcheck that runs "pg_isready" every 3 seconds with 5 retries.
+    #    |>
+    #    |> Test: 
+    #    |> pg_isready -U "$(cat /secrets/db_user)" -d "$(cat /secrets/db_name)" -h postgres
     postgres:
         image: postgres:15-alpine
-        # arguments for the ENTRYPOINT script. 
         command: "-c shared_buffers=256MB -c max_connections=200"
         restart: unless-stopped
-        secrets: *db_creds
-        volumes:
-            - pg_data_volume:/var/lib/postgresql/data
-        networks:
-            - web_to_db
-        healthcheck:
-            test: pg_isready -U "$(cat /secrets/db_user)" -d "$(cat /secrets/db_name)" -h postgres
-            interval: 3s
-            retries: 5
-
         environment:
             - POSTGRES_USER_FILE=/secrets/db_user
             - POSTGRES_PASSWORD_FILE=/secrets/db_pass
             - POSTGRES_DB_FILE=/secrets/db_name
 
 
+    # TODO: Complete the db_init service definition.
+    #
+    # Tasks:
+    #
+    # 1. Include the db_creds secrets.
+    #
+    # 2. Attach the web_to_db network.
+    #
+    # 3. Include the db_env environment variables.
+    #
+    # 4. Add dependency on the postgres service being healthy.
     db_init:
         build: overshare/web_app/
         command: python3 /code/app.py
         restart: "no"
-        secrets: *db_creds
-        networks:
-            - web_to_db
-        environment:
-            - DATABASE_USER=/secrets/db_user
-            - DATABASE_PASS=/secrets/db_pass
-            - DATABASE_NAME=/secrets/db_name
-            - DATABASE_HOST=postgres
-        depends_on:
-            postgres:
-                condition: service_healthy
+        
 
+
+    # TODO: Complete the web_app service definition.
+    #
+    # Tasks:
+    #
+    # 1. Include the db_creds secrets.
+    #
+    # 2. Attach the web_to_db and proxy_to_web networks.
+    #
+    # 3. Include the db_env environment variables.
+    #
+    # 4. Add dependency on the postgres service being healthy.
+    #
+    # 5. Add a healthcheck that checks the status of the web application 
+    #    |> every 3 seconds with 5 retries, starting 15 seconds after startup.
+    #    |>
+    #    |> Test: 
+    #    |> wget -T 5 "http://web_app:9000/" -O /dev/null -q
     web_app: 
         build:
             context: overshare/web_app/
         restart: unless-stopped
-        secrets: *db_creds
-        networks:
-            - web_to_db
-            - proxy_to_web
-        healthcheck:
-            test: wget -T 5 "http://web_app:9000/" -O /dev/null -q
-            interval: 3s
-            retries: 5
-            start_period: 15s
-        environment:
-            - DATABASE_USER=/secrets/db_user
-            - DATABASE_PASS=/secrets/db_pass
-            - DATABASE_NAME=/secrets/db_name
-            - DATABASE_HOST=postgres
+        
 
-        depends_on:
-            postgres:
-                condition: service_healthy
-
-
-
+    # TODO: Complete the proxy service definition.
+    #
+    # Tasks:
+    #
+    # 1. Attach the proxy_to_web network.
+    #
+    # 2. Mount the file:
+    #    |> /home/ec2-user/challenge_3/overshare/web_proxy/default.conf.template 
+    #    |> @
+    #    |> /etc/nginx/templates/default.conf.template
+    #
+    # 3. Add dependency on the web_app service being healthy.
     proxy:
         image: nginx:1.27-alpine
         restart: unless-stopped
         ports:
             - "5000:80"
-        volumes:
-            - /home/ec2-user/challenge_3/overshare/web_proxy/default.conf.template:/etc/nginx/templates/default.conf.template
-        networks:
-            - proxy_to_web
         environment:
             - WEB_APP_HOST=web_app
             - WEB_APP_PORT=9000
-        depends_on: 
-            web_app:
-                condition: service_healthy
