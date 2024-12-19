@@ -1,9 +1,8 @@
-# Developer notes:
+###############################################################################
 #
-# Manager asked me to create a development environment for the Overshare project.
-#  
-
-
+# Complete this compose file by adding the necessary service configurations.
+# Details are provided in the `TODO` comments.
+###############################################################################
 volumes:
     # Persistent data for the postgres service.
     pg_data_volume:
@@ -25,7 +24,8 @@ secrets:
         file: overshare/secrets/db_name.txt
 
 
-# Reusable DB credentials for the postgres, web_app, and db_init services.
+# Database connection secrets fragment.
+# Applies to all of the services except the proxy.
 x-db_creds: &db_creds
     - source: db_user
       target: /secrets/db_user
@@ -37,6 +37,7 @@ x-db_creds: &db_creds
       target: /secrets/db_name
       mode: 0440
 
+# Database connection environment variables fragment.
 # Reusable ENV variables for the web_app and db_init services
 x-db_env: &db_env
     - DATABASE_USER=/secrets/db_user
@@ -56,7 +57,7 @@ services:
     #    |> @ 
     #    |> /var/lib/postgresql/data.
     #
-    # 2. Include the db_creds secrets.
+    # 2. Add the x-db_creds fragment to the secrets section.
     #
     # 3. Attach the web_to_db network.
     #
@@ -78,11 +79,11 @@ services:
     #
     # Tasks:
     #
-    # 1. Include the db_creds secrets.
+    # 1. Add the x-db_creds fragment to the secrets section.
     #
     # 2. Attach the web_to_db network.
     #
-    # 3. Include the db_env environment variables.
+    # 3. Add the x-db_env fragment to the environment section.
     #
     # 4. Add dependency on the postgres service being healthy.
     db_init:
@@ -96,11 +97,11 @@ services:
     #
     # Tasks:
     #
-    # 1. Include the db_creds secrets.
+    # 1. Add the x-db_creds fragment to the secrets section.
     #
     # 2. Attach the web_to_db and proxy_to_web networks.
     #
-    # 3. Include the db_env environment variables.
+    # 3. Add the x-db_env fragment to the environment section.
     #
     # 4. Add dependency on the postgres service being healthy.
     #
