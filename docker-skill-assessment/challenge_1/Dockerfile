@@ -6,7 +6,7 @@ RUN rustup target add x86_64-unknown-linux-musl
 RUN cd greetings && cargo build --target=x86_64-unknown-linux-musl && strip /build/greetings/target/x86_64-unknown-linux-musl/debug/greetings
 RUN cp /build/greetings/target/x86_64-unknown-linux-musl/debug/greetings hello
 ###########################################
-# Complete this Dockerfile by adding the final stage.
+# TODO: Complete this Dockerfile by adding the final stage.
 # 
 # 
 # Requirements
