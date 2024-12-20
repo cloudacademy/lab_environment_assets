@@ -13,6 +13,6 @@ RUN cp /build/greetings/target/x86_64-unknown-linux-musl/debug/greetings hello
 # - Use the latest Alpine Linux image.
 # - Add the hello binary from the build stage to a /runtime directory.
 # - Add the /runtime directory to the PATH environment variable.
-# - Set /runtime/hello as the default command.
+# - Set hello as the default command.
 
 ###########################################
