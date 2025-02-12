@@ -21,9 +21,25 @@ stop_services() {
     echo "Signoz (stopped)"
 }
 
+
+download_signoz() {
+    echo "Signoz (downloading)"
+    
+    mkdir -p ~/.app 
+    pushd ~/.app
+    git clone -b main https://github.com/SigNoz/signoz.git 
+    pushd signoz
+    # Currently a bug in the current version, the otel collector doesn't start
+    git checkout v0.72.0 
+    # Back to the original dir.
+    popd
+    popd
+    echo "Signoz (downloaded)"
+}
+
 # Check for command-line arguments
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 {start|stop}"
+    echo "Usage: $0 {start|stop|download}"
     exit 1
 fi
 
@@ -34,9 +50,12 @@ case "$1" in
     stop)
         stop_services
         ;;
+    download)
+        download_signoz
+        ;;
     *)
         echo "Invalid option: $1"
-        echo "Usage: $0 {start|stop}"
+        echo "Usage: $0 {start|stop|download}"
         exit 1
         ;;
 esac
