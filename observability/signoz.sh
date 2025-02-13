@@ -21,16 +21,23 @@ stop_services() {
     echo "Signoz (stopped)"
 }
 
-
+# Function to download signoz
 download_signoz() {
     echo "Signoz (downloading)"
     
     mkdir -p ~/.app 
     pushd ~/.app
+    
+    # Remove the dir if it's already downloaded.
+    rm -rf signoz
+    # Clone the repo
     git clone -b main https://github.com/SigNoz/signoz.git 
+    
+    # Currently a bug in the current version, the otel collector doesn't start.
+    # Using the previous version until its fixed.
     pushd signoz
-    # Currently a bug in the current version, the otel collector doesn't start
     git checkout v0.72.0 
+    
     # Back to the original dir.
     popd
     popd
