@@ -58,8 +58,7 @@ signoz_status() {
         SERVICE_EXISTS="$(docker-compose -f ~/.app/signoz/deploy/docker/docker-compose.yaml ps --status=running -q 2> /dev/null)"
 
         if [ -z "$SERVICE_EXISTS" ]; then
-            echo "Signoz (restarting)"
-            ~/utils/signoz.sh download && ~/utils/signoz.sh start &
+            echo "Signoz (not found)"
         else
             echo "Signoz (starting)"
         fi
