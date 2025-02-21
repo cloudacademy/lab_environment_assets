@@ -44,9 +44,33 @@ download_signoz() {
     echo "Signoz (downloaded)"
 }
 
+
+signoz_status() {
+    AUTH_TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+    PUB_ADDRESS=$(curl -s -H "X-aws-ec2-metadata-token: $AUTH_TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4)
+    #  Start by checking the status of the Signoz URL. 
+    HTTP_STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" http://localhost:3301/api/v1/register)
+
+    if [ "$HTTP_STATUS" -eq "200" ]; then 
+        echo "Signoz (running) @ http://$PUB_ADDRESS:3301/"
+    else
+        # If the URL isn't available, it could be because the service is starting up.
+        SERVICE_EXISTS="$(docker-compose -f ~/.app/signoz/deploy/docker/docker-compose.yaml ps --status=running -q 2> /dev/null)"
+
+        if [ -z "$SERVICE_EXISTS" ]; then
+            echo "Signoz (restarting)"
+            ~/utils/signoz.sh download && ~/utils/signoz.sh start &
+        else
+            echo "Signoz (starting)"
+        fi
+    fi
+
+}
+
+
 # Check for command-line arguments
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 {start|stop|download}"
+    echo "Usage: $0 {start|stop|download|status}"
     exit 1
 fi
 
@@ -60,9 +84,12 @@ case "$1" in
     download)
         download_signoz
         ;;
+    status)
+        signoz_status
+        ;;
     *)
         echo "Invalid option: $1"
-        echo "Usage: $0 {start|stop|download}"
+        echo "Usage: $0 {start|stop|download|status}"
         exit 1
         ;;
 esac
