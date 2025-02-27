@@ -55,10 +55,15 @@ signoz_status() {
         echo "Signoz (running) @ http://$PUB_ADDRESS:3301/"
     else
         # If the URL isn't available, it could be because the service is starting up.
+        # While starting, prior to reaching a running state, there is a gap where it's unclear if the service has been started.
         SERVICE_EXISTS="$(docker-compose -f ~/.app/signoz/deploy/docker/docker-compose.yaml ps --status=running -q 2> /dev/null)"
 
+        # This check represents the ambiguous state.
+        # Must check for signs that the service is started
         if [ -z "$SERVICE_EXISTS" ]; then
-            echo "Signoz (not found)"
+            echo "Signoz (ambiguous state)"
+            echo "Either the initial images are downloading or the signoz service has not started."
+            echo "Recheck the status in a couple minutes."
         else
             echo "Signoz (starting)"
         fi
