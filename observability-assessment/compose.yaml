@@ -1,0 +1,38 @@
+networks:
+    web_to_db:
+
+# One or more services can be defined under the top-level key: services.
+services:
+    be_service:
+        build:
+            context: src/be-service
+            dockerfile: ../../Dockerfile
+            args:
+                application_dir: be-service
+        networks:
+            - web_to_db
+        ports:
+            - "5000:8000"
+        environment:
+            - DB_SERVICE_HOST=db_service
+            - DB_SERVICE_PORT=9000
+        depends_on:
+            db_service:
+                condition: service_healthy
+
+    db_service:
+        build:
+            context: src/db-service
+            dockerfile: ../../Dockerfile
+            args:
+                application_dir: adprovider
+        networks:
+            - web_to_db
+
+    # Simulate traffic to the web app.
+    simulate:
+        build: ./src/simulate
+        networks:
+            - web_to_db
+        depends_on:
+            - be_service

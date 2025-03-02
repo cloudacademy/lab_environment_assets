@@ -1,0 +1,6 @@
+Flask
+psycopg[binary]
+SQLAlchemy
+Faker
+gunicorn
+requests
