@@ -38,7 +38,7 @@ def index():
 
 
 
-@app.route('/<index: int>')
+@app.route('/<int:index>')
 def profile(index: int):
     # call the service.
     user = req.get(f'http://{db_service.host}:{db_service.port}/{index}').json()

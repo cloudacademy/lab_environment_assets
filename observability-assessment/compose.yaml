@@ -12,10 +12,11 @@ services:
         networks:
             - web_to_db
         ports:
-            - "5000:8000"
+            - "8000:8000"
         environment:
             - DB_SERVICE_HOST=db_service
             - DB_SERVICE_PORT=9000
+            - FLASK_RUN_PORT=8000
         depends_on:
             db_service:
                 condition: service_healthy
@@ -25,9 +26,18 @@ services:
             context: src/db-service
             dockerfile: ../../Dockerfile
             args:
-                application_dir: adprovider
+                application_dir: db-service
+        ports:
+            - "9000:9000"
         networks:
             - web_to_db
+        environment:
+            - FLASK_RUN_PORT=9000
+
+        healthcheck:
+            test: curl http://localhost:5000/
+            interval: 3s
+            retries: 5
 
     # Simulate traffic to the web app.
     simulate:

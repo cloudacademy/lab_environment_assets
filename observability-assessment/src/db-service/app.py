@@ -50,7 +50,7 @@ def users():
     return USERS
 
 
-@app.route('/users/<index: int>')
+@app.route('/users/<int:index>')
 def user(index: int):
     return USERS[index]
     
