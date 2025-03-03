@@ -7,12 +7,12 @@ class WebsiteUser(HttpUser):
     @task
     def index_page(self):
         # Call the index page.
-        response = self.client.get("/")
+        self.client.get("/")
   
     @task
     def profile_page(self):
         # Call profile by passing index 
         # This range falls outside the index bounds and will occassionally cause an error.
-        response = self.client.get(f'/{random.randint(0, 10)}')
+        self.client.get(f'/{random.randint(0, 10)}')
         
         
