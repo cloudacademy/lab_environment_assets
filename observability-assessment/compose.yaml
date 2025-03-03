@@ -7,6 +7,8 @@ services:
         build:
             context: src/be-service
             dockerfile: ../../Dockerfile
+            args:
+                application_dir: be-service
         networks:
             - web_to_db
         ports:
@@ -15,17 +17,21 @@ services:
             - DB_SERVICE_HOST=db_service
             - DB_SERVICE_PORT=9000
             - FLASK_RUN_PORT=8000
+            - SIGNOZ_HOST
 
     db_service:
         build:
             context: src/db-service
             dockerfile: ../../Dockerfile
+            args:
+                application_dir: db-service
         ports:
             - "9000:9000"
         networks:
             - web_to_db
         environment:
             - FLASK_RUN_PORT=9000
+            - SIGNOZ_HOST
 
     # Simulate traffic to the web app.
     simulate:
