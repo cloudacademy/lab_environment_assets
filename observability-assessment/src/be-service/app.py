@@ -25,7 +25,7 @@ def make_url(path: str=None):
 def index():
     # call the service.
     users = req.get(make_url('/users/')).json()
-    users = [f'<li>{user.name}</li>' for user in users]
+    users = [f'<li>{user["name"]}</li>' for user in users]
     users = ''.join(users)
     
     return f'''
@@ -53,8 +53,8 @@ def profile(index: int):
             <title>Users</title>
             <meta name="viewport" content="width=device-width,initial-scale=1">
             <body>
-                Name: {user.name}<br>
-                Data: {user.data}<br>
+                Name: {user["name"]}<br>
+                Data: {user["data"]}<br>
             </body>
         </html>
     '''
