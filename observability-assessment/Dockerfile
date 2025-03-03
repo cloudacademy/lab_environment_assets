@@ -32,10 +32,14 @@ RUN python3 -m pip install \
 
 ####### Task: #######
 #####################
-####### Edit the default command below to execute the flask command from the `opentelemetry-instrument` binary installed 
-####### as part of the above pip install command.
+####### Auto-instrument the Python applications (be-service & db-service) by editing the
+####### default command below to execute the `flask` binary from the `opentelemetry-instrument` 
+####### binary installed as part of the above pip install command.
 ####### 
-#######
+####### This Dockerfile is isused for both services requiring an environment variable (SERVICE_NAME) to 
+####### differentiate the service names sent to Signoz.
+####### 
+####### 
 ####### REQUIREMENTS 
 ####### 
 ####### 1.) The OTel service name must be set to the $SERVICE_NAME environment variable.
