@@ -22,6 +22,37 @@ COPY . ./${application_dir}
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --no-cache-dir -r ${application_dir}/requirements.txt
 
-# Run the application using the development server.
+
+# Install the open telemetry modules here to keep all Otel configuration from here down.
+RUN python3 -m pip install \
+    opentelemetry-distro \
+    opentelemetry-exporter-otlp && \
+    opentelemetry-bootstrap -a install
+
+
+####### Task: #######
+#####################
+####### Edit the default command below to execute the flask command from the `opentelemetry-instrument` binary installed 
+####### as part of the above pip install command.
+####### 
+#######
+####### REQUIREMENTS 
+####### 
+####### 1.) The OTel service name must be set to the $SERVICE_NAME environment variable.
+#######     The values are set in the compose.yaml file per service.
+####### 
+####### 2.) The OTel exporter OTLP endpoint must be set to the following URL: http://$SIGNOZ_HOST:4318
+#######     The SIGNOZ_HOST env var is configured to use the SIGNOZ_HOST var from the shell that execs compose.
+#######     The command provided to run the service sets the SIGNOZ_HOST variable.
+####### 
+####### 3.) Enable the auto-logging feature.
+#######
+####### 4.) Configure the metric, trace, and log exporters using: otlp_proto_http
+#######
+####### Documentation is available at: 
+####### https://opentelemetry.io/docs/languages/python/getting-started/#add-manual-instrumentation-to-automatic-instrumentation
+#######
+#####################
+
 CMD flask run
 

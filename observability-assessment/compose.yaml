@@ -18,6 +18,7 @@ services:
             - DB_SERVICE_PORT=9000
             - FLASK_RUN_PORT=8000
             - SIGNOZ_HOST
+            - SERVICE_NAME=be-service
 
     db_service:
         build:
@@ -32,6 +33,7 @@ services:
         environment:
             - FLASK_RUN_PORT=9000
             - SIGNOZ_HOST
+            - SERVICE_NAME=db-service
 
     # Simulate traffic to the web app.
     simulate:
