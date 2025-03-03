@@ -1,10 +1,8 @@
 FROM python:3.10-alpine
 
-# Services are exposed on HTTP port 9000 
-EXPOSE 9000
 
 # Build arguments 
-ARG application_dir webapp 
+ARG application_dir undefined 
 ARG use_flask_debug false
 
 # Set the environment variables
@@ -12,7 +10,7 @@ ENV FLASK_APP ${application_dir}.app
 ENV FLASK_DEBUG ${use_flask_debug}
 ENV FLASK_RUN_PORT 9000
 ENV FLASK_RUN_HOST 0.0.0.0
-ENV SIGNOZ_HOST localhost
+ENV SIGNOZ_HOST undefined
 
 # All application code resides inside subdirectories of the /code directory.
 WORKDIR /code
