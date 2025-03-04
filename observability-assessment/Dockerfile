@@ -53,8 +53,9 @@ RUN python3 -m pip install \
 ####### 4.) Configure the metric, trace, and log exporters using: otlp_proto_http
 #######
 ####### Documentation is available at: 
-####### https://opentelemetry.io/docs/languages/python/getting-started/#add-manual-instrumentation-to-automatic-instrumentation
-#######
+####### https://opentelemetry.io/docs/languages/python/getting-started/#instrumentation
+####### https://opentelemetry.io/docs/zero-code/python/configuration/
+####### https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
 ###################################################################################################
 
 CMD flask run
