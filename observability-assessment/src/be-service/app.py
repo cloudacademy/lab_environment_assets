@@ -115,6 +115,8 @@ def profile(index: int):
         
         REQUIREMENTS
         
+        Use the global tracer created above or create your own.
+        
         1.) Edit this function to include a root span named: profile
             a.) Set an attribute named user_id to the value of index.
             
