@@ -35,7 +35,7 @@ RUN python3 -m pip install \
 ####### default command below to execute the `flask` binary from the `opentelemetry-instrument` 
 ####### binary installed as part of the above pip install command.
 ####### 
-####### This Dockerfile is is used for both services requiring an environment variable (SERVICE_NAME) to 
+####### This Dockerfile is used for both services requiring an environment variable (SERVICE_NAME) to 
 ####### differentiate the service names sent to Signoz.
 ####### 
 ####### 
